@@ -2,13 +2,7 @@
 #define SCGUI_BUTTON_H
 
 #include <SDL2/SDL.h>
-
-typedef struct {
-    struct Color background_color;
-    struct Color border_color;
-    double border_size;
-    char* font_family;
-} SCGUI_BUTTON_STYLE;
+#include <SCGUI/styles.h>
 
 struct SCGUI_BUTTON {
     struct Vector2 position;

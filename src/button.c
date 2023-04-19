@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #include <SCGUI/types.h>
+#include <SCGUI/styles.h>
 #include <SCGUI/button.h>
 
 #include <SCGUI/init.h>
@@ -36,7 +37,12 @@ void scgui_draw_button(struct SCGUI_BUTTON self, enum SCGUI_ALIGNMENT alignment)
             break;
     }
 
-    SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(app.renderer, 
+        self.style.background_color.red, 
+        self.style.background_color.green, 
+        self.style.background_color.blue,
+        255
+    );
     SDL_RenderFillRect(app.renderer, &self.area);
 }
 

@@ -22,7 +22,7 @@ void scgui_clear();
 void scgui_update(int rate);
 void scgui_destroy();
 
-extern struct SCGUI_APP app; 
+extern struct SCGUI_APP app;
 extern struct SCGUI_INPUT input;
 
 #endif
