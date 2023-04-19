@@ -1,31 +1,34 @@
-#ifndef SCGUI_BUTTON_H
-#define SCGUI_BUTTON_H
+#ifndef SCGUI_HEADER_BUTTON
+#	define SCGUI_HEADER_BUTTON
 
-#include <SDL2/SDL.h>
+#	include <SCGUI/color.h>
+#	include <SCGUI/vector2.h>
+#	include <SDL2/SDL.h>
 
-typedef struct {
-    struct Color background_color;
-    struct Color border_color;
-    double border_size;
-    char* font_family;
-} SCGUI_BUTTON_STYLE;
-
-struct SCGUI_BUTTON {
-    struct Vector2 position;
-    SDL_Rect area;
-    double width;
-    double height;
-    char* text;
-    SCGUI_BUTTON_STYLE style;
+struct SCGUI_ButtonStyle {
+	struct SCGUI_Color backgroundColor;
+	struct SCGUI_Color borderCoolor;
+	double borderSize;
+	char* fontFamily;
 };
 
-enum SCGUI_ALIGNMENT {
-    LEFT,
-    RIGHT,
-    CENTER
+struct SCGUI_Button {
+	struct SCGUI_Vector2 position;
+	SDL_Rect area;
+	double width;
+	double height;
+	char* text;
+	struct SCGUI_ButtonStyle style;
 };
 
-struct SCGUI_BUTTON scgui_new_button(struct Vector2 position, double width, double height, char* text);
-void scgui_draw_button(struct SCGUI_BUTTON self, enum SCGUI_ALIGNMENT alignment);
+enum SCGUI_Alignment {
+	SCGUI_ALIGNMENT_LEFT,
+	SCGUI_ALIGNMENT_RIGHT,
+	SCGUI_ALIGNMENT_CENTER
+};
+
+struct SCGUI_Button SCGUI_Button_create(struct SCGUI_Vector2 position, double width, double height, char* text);
+
+void SCGUI_Button_draw(struct SCGUI_Button button, enum SCGUI_Alignment alignment);
 
 #endif
