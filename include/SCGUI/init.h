@@ -6,7 +6,7 @@
 
 struct SCGUI_APP {
     SDL_Renderer *renderer;
-    char* title;
+    char *title;
     int width;
     int height;
     bool resizeable;
