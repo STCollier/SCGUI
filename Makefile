@@ -5,9 +5,10 @@ BIN_DIR = ./bin
 
 # Installs needed packages
 configure:
-	chmod u+x bin/install.sh && ./bin/install.sh
-
+	chmod u+x ./install.sh && ./install.sh
 # Compiles and runs tests
 run:
+	mkdir -p $(BIN_DIR)
 	${CC} tests/main.c $(CFLAGS) -o $(BIN_DIR)/main -Iinclude ./src/*.c $(LIBS)
 	$(BIN_DIR)/main
+
