@@ -1,33 +1,28 @@
-#ifndef SCGUI_HEADER_INIT
-#	define SCGUI_HEADER_INIT
+#ifndef SCGUI_INIT_H
+#define SCGUI_INIT_H
 
-#	include <SDL2/SDL.h>
-#	include <limits.h>
-#	include <stdbool.h>
+#include <SDL2/SDL.h>
+#include <stdbool.h>
 
-struct SCGUI_App {
-	SDL_Renderer* renderer;
-	char* title;
-	int width;
-	int height;
-	bool resizeable;
-	bool running;
+struct SCGUI_APP {
+    SDL_Renderer *renderer;
+    char *title;
+    int width;
+    int height;
+    bool resizeable;
+    bool running;
 };
 
-struct SCGUI_Input {
-	char keys[CHAR_MAX - CHAR_MIN + 1];
+struct SCGUI_INPUT {
+    int keys[256];
 };
 
-void SCGUI_init(char* title, int width, int height);
+void scgui_init(char* title, int width, int height);
+void scgui_clear();
+void scgui_update(int rate);
+void scgui_destroy();
 
-void SCGUI_clear();
-
-void SCGUI_update(int rate);
-
-void SCGUI_destroy();
-
-extern struct SCGUI_App SCGUI_app;
-
-extern struct SCGUI_Input SCGUI_input;
+extern struct SCGUI_APP app; 
+extern struct SCGUI_INPUT input;
 
 #endif

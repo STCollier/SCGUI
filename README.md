@@ -1,2 +1,0 @@
-# SCGUI
-(Very cool project)
