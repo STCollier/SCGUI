@@ -5,9 +5,9 @@
 
 typedef struct {
     struct SCGUI_Color background_color;
-    struct SCGUI_Color border_color;
-    double border_size;
     char* font_family;
+    int font_size;
+    struct SCGUI_Color font_color;
 } SCGUI_ButtonStyle;
 
 #endif

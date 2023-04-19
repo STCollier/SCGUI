@@ -11,7 +11,7 @@ struct SCGUI_Button {
 	double height;
 	char* text;
 	SCGUI_ButtonStyle style;
-};
+}; 
 
 enum SCGUI_Alignment {
 	LEFT,
@@ -22,5 +22,6 @@ enum SCGUI_Alignment {
 
 struct SCGUI_Button scgui_new_button(struct SCGUI_Vector2 position, double width, double height, char* text);
 void scgui_draw_button(struct SCGUI_Button button, enum SCGUI_Alignment alignment);
+void scgui_destroy_button();
 
 #endif
