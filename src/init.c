@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct SCGUI_App SCGUI_app;
-struct SCGUI_Input SCGUI_input;
+struct SCGUI_App app;
+struct SCGUI_Input input;
 
 // Private application details to intilize window (user does not need to see these variables)
 static struct {
@@ -16,12 +16,12 @@ static struct {
 	bool closeRequested;
 } details;
 
-void SCGUI_init(char* title, const int width, const int height) {
-	SCGUI_app.title = title;
-	SCGUI_app.width = width;
-	SCGUI_app.height = height;
-	SCGUI_app.resizeable = false;
-	SCGUI_app.running = !details.closeRequested;
+void scgui_init(char* title, const int width, const int height) {
+	app.title = title;
+	app.width = width;
+	app.height = height;
+	app.resizeable = false;
+	app.running = !details.closeRequested;
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER)) {
 		fprintf(stderr, "Error initializing SDL: %s\n", SDL_GetError());
@@ -39,15 +39,15 @@ void SCGUI_init(char* title, const int width, const int height) {
 		exit(EXIT_FAILURE);
 	}
 
-	details.window = SDL_CreateWindow(SCGUI_app.title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCGUI_app.width, SCGUI_app.height, SCGUI_app.resizeable);
+	details.window = SDL_CreateWindow(app.title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, app.width, app.height, app.resizeable);
 	if (!details.window) {
 		fprintf(stderr, "Error creating SDL window: %s\n", SDL_GetError()); 
 		SDL_Quit(); 
 		exit(EXIT_FAILURE);
 	}
 
-	SCGUI_app.renderer = SDL_CreateRenderer(details.window, -1, (Uint32)SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (!SCGUI_app.renderer) {
+	app.renderer = SDL_CreateRenderer(details.window, -1, (Uint32)SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (!app.renderer) {
 		fprintf(stderr, "Error creating SDL renderer: %s\n", SDL_GetError());
 		SDL_DestroyWindow(details.window);
 		SDL_Quit();
@@ -55,31 +55,31 @@ void SCGUI_init(char* title, const int width, const int height) {
 	}
 }
 
-void SCGUI_clear() {
-	SDL_SetRenderDrawColor(SCGUI_app.renderer, 255, 255, 255, 255);
-	SDL_RenderClear(SCGUI_app.renderer);
+void scgui_clear() {
+	SDL_SetRenderDrawColor(app.renderer, 255, 255, 255, 255);
+	SDL_RenderClear(app.renderer);
 }
 
-void SCGUI_update(const int rate) {
+void scgui_update(const int rate) {
 	while (SDL_PollEvent(&details.event))
 		switch (details.event.type) {
 			case SDL_QUIT:
 				details.closeRequested = true;
-				SCGUI_app.running = false;
+				app.running = false;
 				break;
 			case SDL_KEYDOWN:
-				SCGUI_input.keys[details.event.key.keysym.scancode] = true;
+				input.keys[details.event.key.keysym.scancode] = true;
 				break;
 			case SDL_KEYUP:
-				SCGUI_input.keys[details.event.key.keysym.scancode] = false;
+				input.keys[details.event.key.keysym.scancode] = false;
 				break;
 		}
-	SDL_RenderPresent(SCGUI_app.renderer);
+	SDL_RenderPresent(app.renderer);
 	SDL_Delay(1000 / rate);
 }
 
-void SCGUI_destroy() {
-	SDL_DestroyRenderer(SCGUI_app.renderer);
+void scgui_destroy() {
+	SDL_DestroyRenderer(app.renderer);
 	SDL_DestroyWindow(details.window);
 	SDL_Quit();
 }
