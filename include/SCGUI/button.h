@@ -1,4 +1,4 @@
-#ifndef SCGUI_BUTTON_H
+#ifndef SCGUI_BUTTON_H	
 #define SCGUI_BUTTON_H
 
 #include <SDL2/SDL.h>
@@ -21,6 +21,7 @@ enum SCGUI_Alignment {
 
 
 struct SCGUI_Button scgui_new_button(struct SCGUI_Vector2 position, double width, double height, char* text);
+void scgui_set_style(struct SCGUI_Button self);
 void scgui_draw_button(struct SCGUI_Button button, enum SCGUI_Alignment alignment);
 void scgui_destroy_button();
 
