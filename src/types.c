@@ -9,7 +9,7 @@ struct SCGUI_Color new_color(uint8_t red, uint8_t green, uint8_t blue) {
 	return color;
 }
 
-struct SCGUI_Vector2 new_vec2(double x, double y) {
+struct SCGUI_Vector2 new_vec2(int x, int y) {
     struct SCGUI_Vector2 vector2;
 
     vector2.x = x;

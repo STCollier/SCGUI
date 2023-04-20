@@ -5,6 +5,8 @@
 #include <limits.h>
 #include <stdbool.h>
 
+#include <SCGUI/types.h>
+
 struct SCGUI_App {
 	SDL_Renderer* renderer;
 	char* title;
@@ -12,6 +14,7 @@ struct SCGUI_App {
 	int height;
 	bool resizeable;
 	bool running;
+	struct SCGUI_Vector2 mouse_pos;
 };
 
 struct SCGUI_Input {

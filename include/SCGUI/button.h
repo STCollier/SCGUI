@@ -1,4 +1,4 @@
-#ifndef SCGUI_BUTTON_H	
+#ifndef SCGUI_BUTTON_H
 #define SCGUI_BUTTON_H
 
 #include <SDL2/SDL.h>

@@ -20,6 +20,15 @@ static struct {
 } private;
 
 
+static bool button_hovered(SDL_Rect area, int x, int y) {
+    if (x >= area.x && x <= area.x + area.w && y >= area.y && y <= area.y + area.h) {
+        return true;
+    }
+
+    return false;
+}
+
+
 struct SCGUI_Button scgui_new_button(const struct SCGUI_Vector2 position, const double width, const double height, char* text) {
 	struct SCGUI_Button button;
 
@@ -31,15 +40,19 @@ struct SCGUI_Button scgui_new_button(const struct SCGUI_Vector2 position, const 
 	return button;
 }
 
-
-void scgui_set_style(struct SCGUI_Button self) {
+static void set_default_styles(struct SCGUI_Button self) {
     //Default behavior
     self.style = (SCGUI_ButtonStyle) {
         .background_color = self.style.background_color,
         .font_color = self.style.font_color,
-        .font_family = self.style.font_family == NULL || strlen(self.style.font_family) == 0 ? "res/Roboto-Regular.ttf" : self.style.font_family,
+        .font_family = self.style.font_family == NULL || strlen(self.style.font_family) == 0 ? "res/Roboto.ttf" : self.style.font_family,
         .font_size = self.style.font_size
     };
+}
+
+
+void scgui_set_style(struct SCGUI_Button self) {
+    set_default_styles(self);
 
     private.font = TTF_OpenFont(self.style.font_family, self.style.font_size);
     if (private.font == NULL) {
@@ -47,9 +60,7 @@ void scgui_set_style(struct SCGUI_Button self) {
         exit(EXIT_FAILURE);
     }
 
-    if(!TTF_SizeText(private.font, self.text, &private.text_width, &private.text_height)) {
-        printf("width=%d height=%d\n", private.text_width, private.text_height);
-    }
+    TTF_SizeText(private.font, self.text, &private.text_width, &private.text_height); //Get text size
 
     private.surface_text = TTF_RenderText_Blended(private.font, self.text, (SDL_Color) {self.style.font_color.red, self.style.font_color.green, self.style.font_color.blue, 255}); 
     private.text = SDL_CreateTextureFromSurface(app.renderer, private.surface_text);
@@ -68,6 +79,22 @@ void scgui_draw_button(struct SCGUI_Button self, enum SCGUI_Alignment alignment)
         case CENTER:
             self.area = (SDL_Rect) {self.position.x-self.width/2, self.position.y-self.height/2, self.width, self.height};
             break;
+    }
+
+    if (button_hovered(self.area, app.mouse_pos.x, app.mouse_pos.y)) {
+        self.style = (SCGUI_ButtonStyle) {
+            .background_color = self.style.hover.background_color,
+            .font_color = self.style.hover.font_color,
+            .font_family = self.style.hover.font_family == NULL || strlen(self.style.hover.font_family) == 0 ? "res/Roboto.ttf" : self.style.hover.font_family,
+            .font_size = self.style.hover.font_size == 0 ? self.style.font_size : self.style.hover.font_size
+        };
+
+        SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND));
+        scgui_set_style(self);
+    } else {
+        SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
+        set_default_styles(self);
+        scgui_set_style(self);
     }
 
     SDL_SetRenderDrawColor(app.renderer,

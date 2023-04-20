@@ -1,7 +1,9 @@
 #include <SCGUI/init.h>
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,7 +63,7 @@ void scgui_clear() {
 }
 
 void scgui_update(const int rate) {
-	while (SDL_PollEvent(&details.event))
+	while (SDL_PollEvent(&details.event)) {
 		switch (details.event.type) {
 			case SDL_QUIT:
 				details.closeRequested = true;
@@ -74,6 +76,11 @@ void scgui_update(const int rate) {
 				input.keys[details.event.key.keysym.scancode] = false;
 				break;
 		}
+	}
+
+	SDL_GetMouseState(&app.mouse_pos.x, &app.mouse_pos.y);
+
+
 	SDL_RenderPresent(app.renderer);
 	SDL_Delay(1000 / rate);
 }
