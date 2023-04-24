@@ -28,91 +28,116 @@ static bool button_hovered(SDL_Rect area, int x, int y) {
     return false;
 }
 
+static void set_default_styles(struct SCGUI_Button *self) {
+    self->style = (SCGUI_ButtonStyle) {
+        .background_color = new_color(200, 200, 200),
+        .font_color = new_color(0, 0, 0),
+        .font_family = "res/Roboto.ttf",
+        .font_size = 36,
 
-struct SCGUI_Button scgui_new_button(const struct SCGUI_Vector2 position, const double width, const double height, char* text) {
-	struct SCGUI_Button button;
-
-	button.position = new_vec2(position.x, position.y);
-	button.width = width;
-	button.height = height;
-	button.text = text;
-
-	return button;
-}
-
-static void set_default_styles(struct SCGUI_Button self) {
-    //Default behavior
-    self.style = (SCGUI_ButtonStyle) {
-        .background_color = self.style.background_color,
-        .font_color = self.style.font_color,
-        .font_family = self.style.font_family == NULL || strlen(self.style.font_family) == 0 ? "res/Roboto.ttf" : self.style.font_family,
-        .font_size = self.style.font_size
+        .hover = {
+            .background_color = new_color(55, 55, 55),
+            .font_color = new_color(255, 255, 255),
+            .font_family = "res/Roboto.ttf",
+            .font_size = 36,
+        }
     };
 }
 
 
-void scgui_set_style(struct SCGUI_Button self) {
-    set_default_styles(self);
+struct SCGUI_Button scgui_new_button(const struct SCGUI_Vector2 position, const double width, const double height, char* text) {
+    struct SCGUI_Button button;
 
-    private.font = TTF_OpenFont(self.style.font_family, self.style.font_size);
-    if (private.font == NULL) {
-        fprintf(stderr, "Failed to load TTF font %s!\n", self.style.font_family);
-        exit(EXIT_FAILURE);
-    }
+    button.position = new_vec2(position.x, position.y);
+    button.width = width;
+    button.height = height;
+    button.text = text;
 
-    TTF_SizeText(private.font, self.text, &private.text_width, &private.text_height); //Get text size
+    button.state.hovered = false;
+    button.state.clicked = false;
 
-    private.surface_text = TTF_RenderText_Blended(private.font, self.text, (SDL_Color) {self.style.font_color.red, self.style.font_color.green, self.style.font_color.blue, 255}); 
-    private.text = SDL_CreateTextureFromSurface(app.renderer, private.surface_text);
+    set_default_styles(&button);
 
+    return button;
 }
 
 
-void scgui_draw_button(struct SCGUI_Button self, enum SCGUI_Alignment alignment) {
+void scgui_draw_button(struct SCGUI_Button *self, enum SCGUI_Alignment alignment) {
+
     switch(alignment) {
         case LEFT:
-            self.area = (SDL_Rect) {self.position.x, self.position.y, self.width, self.height};
+            self->area = (SDL_Rect) {self->position.x, self->position.y, self->width, self->height};
             break;
-        case RIGHT:
-            self.area = (SDL_Rect) {self.position.x-self.width, self.position.y, self.width, self.height};
+        case RIGHT: 
+            self->area = (SDL_Rect) {self->position.x-self->width, self->position.y, self->width, self->height};
             break;
         case CENTER:
-            self.area = (SDL_Rect) {self.position.x-self.width/2, self.position.y-self.height/2, self.width, self.height};
+            self->area = (SDL_Rect) {self->position.x-self->width/2, self->position.y-self->height/2, self->width, self->height};
             break;
     }
 
-    if (button_hovered(self.area, app.mouse_pos.x, app.mouse_pos.y)) {
-        self.style = (SCGUI_ButtonStyle) {
-            .background_color = self.style.hover.background_color,
-            .font_color = self.style.hover.font_color,
-            .font_family = self.style.hover.font_family == NULL || strlen(self.style.hover.font_family) == 0 ? "res/Roboto.ttf" : self.style.hover.font_family,
-            .font_size = self.style.hover.font_size == 0 ? self.style.font_size : self.style.hover.font_size
+    if (button_hovered(self->area, app.mouse_pos.x, app.mouse_pos.y)) {
+        self->state.hovered = true;
+
+        //Intilize hover styles
+        set_default_styles(self);
+
+        //Set hover styles to actual style when hovered
+        self->style = (SCGUI_ButtonStyle) {
+            .background_color = self->style.hover.background_color,
+            .font_color = self->style.hover.font_color,
+            .font_family = self->style.hover.font_family,
+            .font_size = self->style.hover.font_size,
         };
 
+        private.font = TTF_OpenFont(self->style.font_family, self->style.font_size);
+        if (private.font == NULL) {
+            fprintf(stderr, "Failed to load TTF font %s!\n", self->style.font_family);
+            exit(EXIT_FAILURE);
+        }
+
+        TTF_SizeText(private.font, self->text, &private.text_width, &private.text_height); //Get text size
+
+        private.surface_text = TTF_RenderText_Blended(private.font, self->text, (SDL_Color) {self->style.font_color.red, self->style.font_color.green, self->style.font_color.blue, 255}); 
+        private.text = SDL_CreateTextureFromSurface(app.renderer, private.surface_text);
+
         SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND));
-        scgui_set_style(self);
     } else {
-        SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
+        self->state.hovered = false;
+
+        //Revert to default styles
         set_default_styles(self);
-        scgui_set_style(self);
+
+        private.font = TTF_OpenFont(self->style.font_family, self->style.font_size);
+        if (private.font == NULL) {
+            fprintf(stderr, "Failed to load TTF font %s!\n", self->style.font_family);
+            exit(EXIT_FAILURE);
+        }
+
+        TTF_SizeText(private.font, self->text, &private.text_width, &private.text_height);
+
+        private.surface_text = TTF_RenderText_Blended(private.font, self->text, (SDL_Color) {self->style.font_color.red, self->style.font_color.green, self->style.font_color.blue, 255}); 
+        private.text = SDL_CreateTextureFromSurface(app.renderer, private.surface_text);
+
+        SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
     }
 
     SDL_SetRenderDrawColor(app.renderer,
-        self.style.background_color.red, 
-        self.style.background_color.green, 
-        self.style.background_color.blue,
+        self->style.background_color.red, 
+        self->style.background_color.green, 
+        self->style.background_color.blue,
         255
     );
 
     private.text_area = (SDL_Rect) {
-        self.position.x-private.text_width/2, 
-        self.position.y-private.text_height/2,
+        self->position.x-private.text_width/2, 
+        self->position.y-private.text_height/2,
         private.text_width,
         private.text_height
     };
 
 
-    SDL_RenderFillRect(app.renderer, &self.area);
+    SDL_RenderFillRect(app.renderer, &self->area);
     SDL_RenderCopy(app.renderer, private.text, NULL, &private.text_area);
 }
 

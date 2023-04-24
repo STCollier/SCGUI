@@ -18,4 +18,5 @@ typedef struct  {
     BUTTON_STYLE hover;
 } SCGUI_ButtonStyle;
 
+
 #endif

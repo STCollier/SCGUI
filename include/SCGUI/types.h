@@ -45,6 +45,7 @@ struct SCGUI_Vector2 {
 };
 
 struct SCGUI_Color new_color(uint8_t red, uint8_t green, uint8_t blue);
+void print_color(struct SCGUI_Color self);
 struct SCGUI_Vector2 new_vec2(int x, int y);
 
 
