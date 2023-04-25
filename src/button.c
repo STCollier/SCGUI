@@ -28,37 +28,80 @@ static bool button_hovered(SDL_Rect area, int x, int y) {
     return false;
 }
 
-static void set_default_styles(struct SCGUI_Button *self) {
-    self->style = (SCGUI_ButtonStyle) {
-        .background_color = new_color(200, 200, 200),
-        .font_color = new_color(0, 0, 0),
-        .font_family = "res/Roboto.ttf",
-        .font_size = 36,
-
-        .hover = {
-            .background_color = new_color(55, 55, 55),
-            .font_color = new_color(255, 255, 255),
-            .font_family = "res/Roboto.ttf",
-            .font_size = 36,
-        }
-    };
-}
+static SCGUI_ButtonStyle default_style;
 
 
 struct SCGUI_Button scgui_new_button(const struct SCGUI_Vector2 position, const double width, const double height, char* text) {
-    struct SCGUI_Button button;
 
-    button.position = new_vec2(position.x, position.y);
-    button.width = width;
-    button.height = height;
-    button.text = text;
+    //Initilize default values
+    struct SCGUI_Button button = {
+        .position = new_vec2(position.x, position.y),
+        .width = width,
+        .height = height,
+        .text = text,
 
-    button.state.hovered = false;
-    button.state.clicked = false;
+        .state = {  
+            .clicked = false,
+            .hovered = false
+        },
 
-    set_default_styles(&button);
+        .style = {
+            .background_color = new_color(0, 0, 0),
+            .font_color = new_color(0, 0, 0),
+            .font_family = "res/Roboto.ttf",
+            .font_size = 24,
+
+            .hover = {
+                .background_color = new_color(0, 0, 0),
+                .font_color = new_color(0, 0, 0),
+                .font_family = "res/Roboto.ttf",
+                .font_size = 24,
+            }
+        }
+    };
 
     return button;
+}
+
+void scgui_set_style(struct SCGUI_Button *self) {
+    self->style = (SCGUI_ButtonStyle) {
+        .background_color = self->style.background_color,
+        .font_color = self->style.font_color,
+        .font_family = self->style.font_family == NULL ? "res/Roboto.ttf" : self->style.font_family,
+        .font_size = self->style.font_size == 0 ? 24 : self->style.font_size,
+
+        .hover = {
+            .background_color = self->style.hover.background_color,
+            .font_color = self->style.hover.font_color,
+            .font_family = self->style.hover.font_family == NULL ? "res/Roboto.ttf" : self->style.hover.font_family,
+            .font_size = self->style.font_size == 0 ? 24 : self->style.hover.font_size,
+        }
+    };
+
+    default_style = (SCGUI_ButtonStyle) {
+        .background_color = self->style.background_color,
+        .font_color = self->style.font_color,
+        .font_family = self->style.font_family == NULL ? "res/Roboto.ttf" : self->style.font_family,
+        .font_size = self->style.font_size == 0 ? 24 : self->style.font_size,
+    };
+}
+
+static void set_hovered(struct SCGUI_Button *self) {
+    self->state.hovered = true;
+
+    self->style.background_color = self->style.hover.background_color;
+    self->style.font_color = self->style.hover.font_color;
+    self->style.font_family = self->style.hover.font_family == NULL ? "res/Roboto.ttf" : self->style.hover.font_family;
+    self->style.font_size = self->style.font_size == 0 ? 24 : self->style.hover.font_size;
+}
+
+static void set_default(struct SCGUI_Button *self) {
+    self->state.hovered = false;
+
+    self->style.background_color = default_style.background_color;
+    self->style.font_color = default_style.font_color;
+    self->style.font_family = default_style.font_family == NULL ? "res/Roboto.ttf" : default_style.font_family;
+    self->style.font_size = default_style.font_size == 0 ? 24 : default_style.font_size; 
 }
 
 
@@ -76,25 +119,19 @@ void scgui_draw_button(struct SCGUI_Button *self, enum SCGUI_Alignment alignment
             break;
     }
 
+    //printf("Hovered: %s\nColor: (%d, %d, %d)\n\n", self->state.hovered ? "true" : "false", self->style.background_color.red, self->style.background_color.green, self->style.background_color.blue);
+
     if (button_hovered(self->area, app.mouse_pos.x, app.mouse_pos.y)) {
-        self->state.hovered = true;
+        set_hovered(self);
 
-        //Intilize hover styles
-        set_default_styles(self);
-
-        //Set hover styles to actual style when hovered
-        self->style = (SCGUI_ButtonStyle) {
-            .background_color = self->style.hover.background_color,
-            .font_color = self->style.hover.font_color,
-            .font_family = self->style.hover.font_family,
-            .font_size = self->style.hover.font_size,
-        };
 
         private.font = TTF_OpenFont(self->style.font_family, self->style.font_size);
         if (private.font == NULL) {
             fprintf(stderr, "Failed to load TTF font %s!\n", self->style.font_family);
             exit(EXIT_FAILURE);
         }
+
+
 
         TTF_SizeText(private.font, self->text, &private.text_width, &private.text_height); //Get text size
 
@@ -103,10 +140,8 @@ void scgui_draw_button(struct SCGUI_Button *self, enum SCGUI_Alignment alignment
 
         SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND));
     } else {
-        self->state.hovered = false;
-
-        //Revert to default styles
-        set_default_styles(self);
+        set_default(self);
+        scgui_set_style(self);
 
         private.font = TTF_OpenFont(self->style.font_family, self->style.font_size);
         if (private.font == NULL) {
